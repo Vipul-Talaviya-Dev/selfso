@@ -19,6 +19,14 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('fcm_token');
+            $table->string('device_id');
+            $table->string('login_type');
+            $table->string('account_type');
+            $table->string('avatar');
+            $table->string('status')->default(1); //1-Active, 0-DeActive
+            $table->string('phone_number');
+            $table->softDeletes('deleted_at', 0);
             $table->rememberToken();
             $table->timestamps();
         });
