@@ -15,10 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.' ], function () {
 
-    Route::get('/', function () {
-        return view('welcome');
-    });
-
-    Route::get('login', 'LoginController@login')->name('login');
+    Route::get('login', 'LoginController@loginForm')->name('loginForm');
+    Route::post('login', 'LoginController@login')->name('login');
     Route::get('dashboard','DashboardController@index')->name('dashboard');
 });

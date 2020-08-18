@@ -14,21 +14,22 @@ class CreateUsersTable extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->bigIncrements('id');
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('mobile')->nullable();
+            $table->string('email')->nullable();
+            $table->string('password')->nullable();
+            $table->string('avatar')->nullable();
+            $table->string('fcm_token')->nullable();
+            $table->tinyInteger('device_id')->nullable()->comment('1: Android, 2: IOS');
+            $table->tinyInteger('login_type')->default(1)->unsigned()->comment('Login Type:~ 1: Notmal, 2: Google, 3: FaceBook');
+            $table->tinyInteger('account_type')->default(1)->unsigned()->comment('1: Public, 2: Private');
+            $table->tinyInteger('status')->default(1)->unsigned()->comment('1: Active, 0: In-Active');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->string('fcm_token');
-            $table->string('device_id');
-            $table->string('login_type');
-            $table->string('account_type');
-            $table->string('avatar');
-            $table->string('status')->default(1); //1-Active, 0-DeActive
-            $table->string('phone_number');
-            $table->softDeletes('deleted_at', 0);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

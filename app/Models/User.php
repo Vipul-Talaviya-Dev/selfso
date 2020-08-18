@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
     use Notifiable;
-
+    use SoftDeletes;
+    const ACTIVE = 1, INACTIVE = 0;
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'first_name', 'last_name', 'mobile', 'email', 'password', 'avatar', 'fcm_token', 'device_id', 'login_type', 'account_type', 'status'
     ];
 
     /**
@@ -36,4 +38,37 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * The attributes that should be returned as Carbon Instance
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+    
+    public function generateApiToken()
+    {
+        return encrypt([
+            'user_id' => $this->id,
+            'user_type' => self::class,
+        ]);
+    }
+
+    public function fullName()
+    {
+        return $this->first_name.' '.$this->last_name;
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('users.status', self::ACTIVE);
+    }
+
+    public function scopeInActive($query)
+    {
+        return $query->where('users.status', self::INACTIVE);
+    }
 }

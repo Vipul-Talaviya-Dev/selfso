@@ -19,6 +19,6 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::group(['namespace' => 'API\v1','prefix' => 'v1'], function () {
-    Route::post('login', 'LoginController@login')->name('login');
-    Route::post('register', 'LoginController@register')->name('register');
+    Route::post('login', 'LoginController@login');
+    Route::post('register', 'LoginController@register');
 });
