@@ -18,7 +18,17 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::group(['namespace' => 'API\v1','prefix' => 'v1'], function () {
+Route::post('app-version', 'Api\V1\CommonController@appVersion');
+Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
+    Route::get('categories', 'CommonController@categories');
+    
     Route::post('login', 'LoginController@login');
     Route::post('register', 'LoginController@register');
+
+    Route::group(['middleware' => 'userAuth'], function() {
+		Route::get('logout', 'UserController@logout');
+		Route::post('passwordReset', 'UserController@changePassword');
+		Route::get('profile', 'UserController@index');
+		Route::post('profile/update', 'UserController@profileUpdate');
+	});
 });
