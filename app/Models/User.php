@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name', 'mobile', 'email', 'password', 'avatar', 'fcm_token', 'device_id', 'login_type', 'account_type', 'status'
+        'first_name', 'last_name', 'mobile', 'email', 'password', 'avatar', 'fcm_token', 'device_id', 'login_type', 'account_type', 'status', 'gender'
     ];
 
     /**
@@ -46,6 +46,21 @@ class User extends Authenticatable
      */
     protected $dates = ['deleted_at'];
     
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function friends()
+    {
+        return $this->belongsToMany(Friend::class, 'user_id');
+    }
+
+    public function friend()
+    {
+        return $this->hasOne(Friend::class, 'to_user_id');
+    }
+
     public function generateApiToken()
     {
         return encrypt([

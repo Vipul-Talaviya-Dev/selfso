@@ -2,7 +2,7 @@
 
 namespace App\Library;
 
-// use Cloudder; 
+use Cloudder; 
 
 class Helper 
 {
@@ -35,8 +35,8 @@ class Helper
 		}
 		// 2097152 => 2MB
 
-        // $publicKey = Cloudder::upload($file, null, ['folder' => $path])->getPublicId(); // public key
-        $publicKey = '';
+        $publicKey = Cloudder::upload($file, null, ['folder' => $path])->getPublicId(); // public key
+        
         return [
 			'status' => true,
 			'publicKey' => $publicKey,
@@ -45,6 +45,12 @@ class Helper
 
 	}
 
+	public static function imageRemove($fileName)
+	{
+		Cloudder::destroyImage($fileName, []);
+        Cloudder::delete($fileName, []);
+	}
+	
 	public static function getUserIpAddr()
 	{
 	    if(!empty($_SERVER['HTTP_CLIENT_IP'])) {

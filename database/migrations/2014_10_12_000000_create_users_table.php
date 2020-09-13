@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->nullable();
             $table->string('password')->nullable();
             $table->string('avatar')->nullable();
+            $table->tinyInteger('gender')->default(0)->comment('1: Male, 2: Female');
             $table->string('fcm_token')->nullable();
             $table->tinyInteger('device_id')->nullable()->comment('1: Android, 2: IOS');
             $table->tinyInteger('login_type')->default(1)->unsigned()->comment('Login Type:~ 1: Notmal, 2: Google, 3: FaceBook');
