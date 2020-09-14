@@ -7,7 +7,8 @@ use Cloudder;
 class Helper 
 {
 	const ERROR_CODE = 422, SUCCESS_CODE = 200;
-
+	const USERIMAGE = 'https://res.cloudinary.com/vipul-talaviya/image/upload/v1600100911/user.png';
+	
 	public static function storeUserImagePath($userId)
 	{
 		return 'users/'.$userId.'/';
@@ -45,12 +46,38 @@ class Helper
 
 	}
 
+	public static function postUpload($path, $file)
+	{
+		if($file->getSize() > 2097152) {
+			return [
+				'status' => false,
+				'message' => 'The image size must be less than 2 Mb.',
+				'publicKey' => '',
+			];
+		}
+
+		$publicKey = Cloudder::upload($file, null, ['folder' => $path])->getPublicId(); // public key
+        
+        return [
+			'status' => true,
+			'publicKey' => $publicKey,
+			'message' => 'successfully uploaded',
+		];
+
+	}
+
 	public static function imageRemove($fileName)
 	{
 		Cloudder::destroyImage($fileName, []);
         Cloudder::delete($fileName, []);
+        return true;
 	}
 	
+	public static function getImage($fileName)
+	{
+		return Cloudder::secureShow($fileName, []);
+	}
+
 	public static function getUserIpAddr()
 	{
 	    if(!empty($_SERVER['HTTP_CLIENT_IP'])) {

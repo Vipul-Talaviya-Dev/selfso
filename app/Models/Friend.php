@@ -25,6 +25,11 @@ class Friend extends Model
      */
     protected $dates = ['deleted_at'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'to_user_id');
+    }
+
     /**
      * Scopes
      */

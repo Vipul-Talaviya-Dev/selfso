@@ -129,6 +129,25 @@ class UserController extends Controller
         ];
     }
 
+    public function friendRequestList()
+    {
+        $user = $this->user;
+        $friends = Friend::pending()->where('user_id', $user->id)->get()->map(function (Friend $friend) {
+            if(isset($friend->user)) {
+                return [
+                    'userConfirmId' => $friend->to_user_id,
+                    'name' => $friend->user->fullName(),
+                    'image' => ($friend->user->avatar) ? Helper::getImage($friend->user->avatar) : Helper::USERIMAGE,
+                ];
+            }
+        });
+
+        return response()->json([
+            'status' => true,
+            'friends' => $friends
+        ], Helper::SUCCESS_CODE);
+    }
+
     public function friendRequest(Request $request)
     {
         $user = $this->user;
@@ -162,6 +181,67 @@ class UserController extends Controller
         ], Helper::SUCCESS_CODE);
     }
 
+    public function friendRequestConfirm(Request $request)
+    {
+        $user = $this->user;
+        $validator = Validator::make($request->all(), [
+            'userConfirmId'=> 'required|exists:friends,to_user_id',
+            'status' => 'required|numeric|in:1,2'
+        ]);
+
+        if ($validator->fails()) {
+            $error = $validator->errors()->all(':message');
+            return response()->json([
+                'status' => false,
+                'message' => $error[0],
+            ], Helper::ERROR_CODE);
+        }
+        $message = '';
+        if($friend = Friend::where('user_id', $user->id)->where('to_user_id', $request->get('userConfirmId'))->first()) {
+            if($request->get('status') == 1) {
+                $friend->status = Friend::ACCEPTED;
+                $friend->save();
+
+                $message = 'Accept your friend request.';
+            } else {
+                $friend->delete();
+                $message = 'Cancel your friend request.';
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => $message,
+        ], Helper::SUCCESS_CODE);
+    }
+
+    public function myFriends(Request $request)
+    {
+        $user = $this->user;
+        $friends = Friend::with(['user'])->accepted()->where('user_id', $user->id);
+
+        if($request->get('name')) {
+            $friends = $friends->whereHas('user', function ($query) use($request) {
+                $query->where('first_name', 'Like', '%'.$request->get('name').'%')->orWhere('last_name', 'Like', '%'.$request->get('name').'%')->orWhere('email', 'Like', '%'.$request->get('name').'%');
+            });
+        }
+
+        $friends = $friends->get()->map(function (Friend $friend) {
+            if(isset($friend->user)) {
+                return [
+                    'id' => $friend->user->id,
+                    'name' => $friend->user->fullName(),
+                    'image' => ($friend->user->avatar) ? Helper::getImage($friend->user->avatar) : Helper::USERIMAGE,
+                ];
+            }
+        });
+
+        return response()->json([
+            'status' => true,
+            'friends' => $friends
+        ], Helper::SUCCESS_CODE);
+    }
+
     public function searchFriends(Request $request)
     {
         $loginUser = $this->user;
@@ -178,6 +258,7 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->fullName(),
                 'email' => $user->email,
+                'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
                 'friendRequestButtonStatus' => ($user->friend) ?  $user->friend->status : 0, // Friend Request:- 1: Pending, 2: Accepted, 3: Blocked
             ];
         });

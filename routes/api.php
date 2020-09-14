@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
-// }); https://laraveldaily.com/pivot-tables-and-many-to-many-relationships/
-// https://stackoverflow.com/questions/23336145/laravel-how-to-use-multiple-pivot-table-relationships
+// });
 
 Route::post('app-version', 'Api\V1\CommonController@appVersion');
 Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
@@ -33,6 +32,12 @@ Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
 		Route::get('profile', 'UserController@index');
 		Route::post('profile/update', 'UserController@profileUpdate');
 		Route::get('search-friends', 'UserController@searchFriends');
+		
+		Route::get('my-friends', 'UserController@myFriends');
+		Route::get('friend-request-list', 'UserController@friendRequestList');
 		Route::post('friend-request', 'UserController@friendRequest'); // send Or Cancel
+		Route::post('friend-request-confirm', 'UserController@friendRequestConfirm'); // Accept Or Cancel
+		
+		Route::post('post-create', 'PostController@create'); // Accept Or Cancel
 	});
 });
