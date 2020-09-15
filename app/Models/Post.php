@@ -15,7 +15,7 @@ class Post extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'media', 'description', 'link', 'likes', 'dislikes', 'status', 'type'
+        'category_id', 'user_id', 'media', 'description', 'link', 'status', 'type'
     ];
     /**
      * The attributes that should be returned as Carbon Instance
@@ -27,6 +27,11 @@ class Post extends Model
     public function tagFriends()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
     }
 
     /**
