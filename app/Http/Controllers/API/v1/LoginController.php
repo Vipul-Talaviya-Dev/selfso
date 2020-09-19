@@ -135,7 +135,7 @@ class LoginController extends Controller
                         'last_name' => $user->last_name,
                         'email' => $user->email,
                         'mobile' => $user->mobile,
-                        'image' => '',
+                        'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
                     ],
                 ], Helper::SUCCESS_CODE);
             }

@@ -39,7 +39,10 @@ Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
 		Route::post('friend-request-confirm', 'UserController@friendRequestConfirm'); // Accept Or Cancel
 		
 		Route::post('post-create', 'PostController@create');
-		Route::get('my-posts', 'PostController@myPost');
+		Route::get('my-posts', 'PostController@myPosts');
+		Route::get('posts', 'PostController@posts');
 		Route::post('post-like', 'PostController@postLikeDisLike'); // Like & DisLike
+		Route::post('post-comment', 'PostController@comment');
+		Route::post('comments', 'PostController@comments');
 	});
 });
