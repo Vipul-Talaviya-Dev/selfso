@@ -61,6 +61,11 @@ class User extends Authenticatable
         return $this->hasOne(Friend::class, 'to_user_id');
     }
 
+    public function stories()
+    {
+        return $this->hasMany(Story::class);
+    }
+
     public function generateApiToken()
     {
         return encrypt([
