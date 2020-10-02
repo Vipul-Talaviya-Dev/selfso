@@ -6,8 +6,9 @@ use Cloudder;
 
 class Helper 
 {
-	const ERROR_CODE = 422, SUCCESS_CODE = 200;
-	const USERIMAGE = 'https://res.cloudinary.com/vipul-talaviya/image/upload/v1600100911/user.png';
+	const ERROR_CODE = 422, SUCCESS_CODE = 200, UNAUTHORIZED = 401, FORBIDDEN = 403, NOTFOUND = 404, SERVERERROR = 500, CREATE_CODE = 201;
+	const USERIMAGE = '';
+	// const USERIMAGE = 'https://res.cloudinary.com/vipul-talaviya/image/upload/v1600100911/user.png';
 	
 	public static function storeUserImagePath($userId)
 	{

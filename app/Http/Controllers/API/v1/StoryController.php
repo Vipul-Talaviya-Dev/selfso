@@ -33,8 +33,10 @@ class StoryController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'stories' => $stories
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'stories' => $stories
+            ]
         ], Helper::SUCCESS_CODE);
     }
 
@@ -52,8 +54,10 @@ class StoryController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'stories' => $stories
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'stories' => $stories
+            ]
         ], Helper::SUCCESS_CODE);
     }
 
@@ -68,8 +72,9 @@ class StoryController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => [],
             ], Helper::ERROR_CODE);
         }
         $publicKey = NULL;
@@ -80,8 +85,9 @@ class StoryController extends Controller
             if($imageResponse['status'] == false) {
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => $imageResponse['message'],
+                    'data' => [],
                 ], Helper::ERROR_CODE);
             }
             $publicKey = $imageResponse['publicKey'];
@@ -94,8 +100,9 @@ class StoryController extends Controller
         ]);
 
         return response()->json([
-            'status' => true,
+            'status' => Helper::CREATE_CODE,
             'message' => 'Successfully add new story.',
-        ], Helper::SUCCESS_CODE);
+            'data' => []
+        ], Helper::CREATE_CODE);
     }
 }

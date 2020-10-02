@@ -23,8 +23,9 @@ class LoginController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => []
             ], Helper::ERROR_CODE);
         } else {
             if ($user = User::where('email', $request->get('email'))->first()) {
@@ -35,27 +36,31 @@ class LoginController extends Controller
                     }
 
                     return response()->json([
-                        'status' => true,
+                        'status' => Helper::SUCCESS_CODE,
                         'message' => 'Successfully Login.',
-                        'token' => $user->generateApiToken($user),
-                        'user' => [
-                            'first_name' => $user->first_name,
-                            'last_name' => $user->last_name,
-                            'email' => $user->email,
-                            'mobile' => $user->mobile,
-                            'image' => '',
+                        'data' => [
+                            'token' => $user->generateApiToken($user),
+                            'user' => [
+                                'first_name' => $user->first_name,
+                                'last_name' => $user->last_name,
+                                'email' => $user->email,
+                                'mobile' => $user->mobile,
+                                'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
+                            ]
                         ],
                     ], Helper::SUCCESS_CODE);        
                 } else {
                     return response()->json([
-                        'status' => false,
+                        'status' => Helper::ERROR_CODE,
                         'message' => 'Invalid Password.',
+                        'data' => []
                     ], Helper::ERROR_CODE);    
                 }
             } else {
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => 'Invalid Password.',
+                    'data' => []
                 ], Helper::ERROR_CODE);
             }
         }
@@ -89,8 +94,9 @@ class LoginController extends Controller
                 $error = $validator->errors()->all(':message');
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => $error[0],
+                    'data' => []
                 ], Helper::ERROR_CODE);
             } else {
                 $user = User::create([
@@ -112,8 +118,9 @@ class LoginController extends Controller
                     if($imageResponse['status'] == false) {
                         DB::rollback();
                         return response()->json([
-                            'status' => false,
+                            'status' => Helper::ERROR_CODE,
                             'message' => $imageResponse['message'],
+                            'data' => [],
                         ], Helper::ERROR_CODE);
                     }
                     
@@ -127,24 +134,27 @@ class LoginController extends Controller
 
                 DB::commit();
                 return response()->json([
-                    'status' => true,
+                    'status' => Helper::CREATE_CODE,
                     'message' => 'Successfully Registered.',
-                    'token' => $user->generateApiToken($user),
-                    'user' => [
-                        'first_name' => $user->first_name,
-                        'last_name' => $user->last_name,
-                        'email' => $user->email,
-                        'mobile' => $user->mobile,
-                        'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
+                    'data' => [
+                        'token' => $user->generateApiToken($user),
+                        'user' => [
+                            'first_name' => $user->first_name,
+                            'last_name' => $user->last_name,
+                            'email' => $user->email,
+                            'mobile' => $user->mobile,
+                            'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
+                        ],
                     ],
-                ], Helper::SUCCESS_CODE);
+                ], Helper::CREATE_CODE);
             }
         } catch (Exception $e) {
             DB::rollback();
             return response()->json([
-                'status' => false,
+                'status' => Helper::SERVERERROR,
                 'message' => $e->getMessage(),
-            ], Helper::ERROR_CODE); 
+                'data' => [],
+            ], Helper::SERVERERROR); 
         }
     }
 
@@ -160,8 +170,9 @@ class LoginController extends Controller
                 $error = $validator->errors()->all(':message');
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => $error[0],
+                    'data' => [],
                 ], Helper::ERROR_CODE);
             } else {
                 if ($user = User::active()->where('email', $request->get('email'))->first()) {
@@ -180,14 +191,16 @@ class LoginController extends Controller
                     });
                     DB::commit();
                     return response()->json([
-                        'status' => true,
+                        'status' => Helper::SUCCESS_CODE,
                         'message' => 'Please Check Your Mail',
+                        'data' => [],
                     ], Helper::SUCCESS_CODE);
                 }
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => 'Invalid Email.',
+                    'data' => [],
                 ], Helper::ERROR_CODE);
             }
         } catch (Exception $e) {

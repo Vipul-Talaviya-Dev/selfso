@@ -16,13 +16,15 @@ class UserController extends Controller
     {
         $user = $this->user;
         return response()->json([
-            'status' => true,
-            'user' => [
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $user->email,
-                'mobile' => $user->mobile,
-                'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'user' => [
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'mobile' => $user->mobile,
+                    'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
+                ]
             ],
         ], Helper::SUCCESS_CODE);
     }
@@ -45,8 +47,9 @@ class UserController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => [],
             ], Helper::ERROR_CODE);
         }
 
@@ -57,8 +60,9 @@ class UserController extends Controller
             if($imageResponse['status'] == false) {
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => $imageResponse['message'],
+                    'data' => [],
                 ], Helper::ERROR_CODE);
             }
             #exist image delete
@@ -80,8 +84,9 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status' => true,
+            'status' => Helper::SUCCESS_CODE,
             'message' => 'Successfully Profile Updated.',
+            'data' => [],
         ], Helper::SUCCESS_CODE);
     }
 
@@ -97,8 +102,9 @@ class UserController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => [],
             ], Helper::ERROR_CODE);
         }
 
@@ -106,26 +112,27 @@ class UserController extends Controller
             $user->password = bcrypt($request->get('newPassword'));
             $user->save();
             
-            $response = [
-                'status' => true,
-                'success' => 'Password has been changed successfully.',
-            ];
+            return response()->json([
+                'status' => Helper::SUCCESS_CODE,
+                'message' => 'Password has been changed successfully.',
+                'data' => [],
+            ], Helper::SUCCESS_CODE);
         } else {
-            $response = [
-                'status' => false,
-                'success' => 'Invalid Old Password.',
-            ];
+            return response()->json([
+                'status' => Helper::ERROR_CODE,
+                'message' => 'Invalid Old Password.',
+                'data' => [],
+            ], Helper::ERROR_CODE);
         }
-        
-        return response()->json($response, Helper::SUCCESS_CODE);
     }
 
     public function logout()
     {
         \Auth::logout();
         return $response = [
-            'status' => true,
-            'success' => 'Logout Successfully.',
+            'status' => Helper::SUCCESS_CODE,
+            'message' => 'Logout Successfully.',
+            'data' => [],
         ];
     }
 
@@ -143,8 +150,10 @@ class UserController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'friends' => $friends
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'friends' => $friends
+            ]
         ], Helper::SUCCESS_CODE);
     }
 
@@ -158,8 +167,9 @@ class UserController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => []
             ], Helper::ERROR_CODE);
         }
 
@@ -176,8 +186,9 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status' => true,
+            'status' => Helper::SUCCESS_CODE,
             'message' => $message,
+            'data' => []
         ], Helper::SUCCESS_CODE);
     }
 
@@ -192,8 +203,9 @@ class UserController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => [],
             ], Helper::ERROR_CODE);
         }
         $message = '';
@@ -210,8 +222,9 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status' => true,
+            'status' => Helper::SUCCESS_CODE,
             'message' => $message,
+            'data' => [],
         ], Helper::SUCCESS_CODE);
     }
 
@@ -237,8 +250,10 @@ class UserController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'friends' => $friends
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'friends' => $friends
+            ]
         ], Helper::SUCCESS_CODE);
     }
 
@@ -264,8 +279,10 @@ class UserController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'users' => $users
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'users' => $users
+            ]
         ], Helper::SUCCESS_CODE);
     }
 }

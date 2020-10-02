@@ -22,19 +22,22 @@ class CommonController extends Controller
         if ($validator->fails())  {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => [],
             ], Helper::ERROR_CODE);
         } else {
             if($appVersion = AppVersion::where('version', $request->get('version'))->where('type', $request->get('type'))->where('user_type', $request->get('user_type'))->first()) {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Please Update Your App'
+                    'status' => Helper::SUCCESS_CODE,
+                    'message' => 'Please Update Your App',
+                    'data' => [],
                 ], Helper::SUCCESS_CODE);
             } else {
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => '',
+                    'data' => [],
                 ], Helper::ERROR_CODE);
             }
         }
@@ -50,8 +53,10 @@ class CommonController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'categories' => $categories
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'categories' => $categories
+            ]
         ], Helper::SUCCESS_CODE);
     }
 }

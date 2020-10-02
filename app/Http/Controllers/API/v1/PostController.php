@@ -6,6 +6,7 @@ use Validator;
 use Carbon\Carbon;
 use App\Models\Like;
 use App\Models\Post;
+use App\Models\User;
 use App\Models\Friend;
 use App\Models\Comment;
 use App\Library\Helper;
@@ -29,8 +30,9 @@ class PostController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => [],
             ], Helper::ERROR_CODE);
         }
         $publicKey = NULL;
@@ -41,8 +43,9 @@ class PostController extends Controller
             if($imageResponse['status'] == false) {
                 DB::rollback();
                 return response()->json([
-                    'status' => false,
+                    'status' => Helper::ERROR_CODE,
                     'message' => $imageResponse['message'],
+                    'data' => [],
                 ], Helper::ERROR_CODE);
             }
             $publicKey = $imageResponse['publicKey'];
@@ -58,13 +61,19 @@ class PostController extends Controller
         ]);
 
         if($request->get('tagFriends')) {
-            $post->tagFriends()->sync($request->get('tagFriends'));
+            if(!empty($request->get('tagFriends'))) {
+                $tagFriendIds = User::select('id')->whereIn('id', $request->get('tagFriends'))->pluck('id')->toArray();
+                if(!empty($tagFriendIds)) {
+                    $post->tagFriends()->sync($tagFriendIds);
+                }
+            }
         }
 
         return response()->json([
-            'status' => true,
+            'status' => Helper::CREATE_CODE,
             'message' => 'Successfully add new post.',
-        ], Helper::SUCCESS_CODE);
+            'data' => []
+        ], Helper::CREATE_CODE);
     }
 
     public function myPosts(Request $request)
@@ -92,8 +101,10 @@ class PostController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'posts' => $posts
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'posts' => $posts
+            ]
         ], Helper::SUCCESS_CODE);
     }
 
@@ -108,8 +119,9 @@ class PostController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => []
             ], Helper::ERROR_CODE);
         }
 
@@ -124,7 +136,7 @@ class PostController extends Controller
         }
 
         return response()->json([
-            'status' => true,
+            'status' => Helper::SUCCESS_CODE,
             'message' => '',
         ], Helper::SUCCESS_CODE);
     }
@@ -156,8 +168,10 @@ class PostController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'posts' => $posts
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'posts' => $posts
+            ]
         ], Helper::SUCCESS_CODE);
     }
 
@@ -173,8 +187,9 @@ class PostController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => [],
             ], Helper::ERROR_CODE);
         }
         
@@ -186,9 +201,10 @@ class PostController extends Controller
         ]);
 
         return response()->json([
-            'status' => true,
+            'status' => Helper::CREATE_CODE,
             'message' => 'Successfully add new comment.',
-        ], Helper::SUCCESS_CODE);
+            'data' => [],
+        ], Helper::CREATE_CODE);
     }
 
     public function comments(Request $request)
@@ -202,8 +218,9 @@ class PostController extends Controller
         if ($validator->fails()) {
             $error = $validator->errors()->all(':message');
             return response()->json([
-                'status' => false,
+                'status' => Helper::ERROR_CODE,
                 'message' => $error[0],
+                'data' => []
             ], Helper::ERROR_CODE);
         }
 
@@ -228,8 +245,10 @@ class PostController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'comments' => $comments
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'comments' => $comments
+            ]
         ], Helper::SUCCESS_CODE);
     }
 }
