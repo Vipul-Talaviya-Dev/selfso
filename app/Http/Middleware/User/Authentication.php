@@ -19,8 +19,9 @@ class Authentication
     {
         \Auth::shouldUse('user');
         $response = array(
-            'status' => false,
-            'message' => 'Authorization token is invalid'
+            'status' => 401,
+            'message' => 'Authorization token is invalid',
+            'data' => []
         );
         if ($request->hasHeader('Authorization')) {
             try {
