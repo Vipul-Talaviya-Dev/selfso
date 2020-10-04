@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use DB;
 use Validator;
 use App\Models\User;
 use App\Models\Friend;
@@ -261,6 +262,15 @@ class UserController extends Controller
     {
         $loginUser = $this->user;
         $users = User::with('friend')->active()->where('id', '!=', $loginUser->id);
+
+        if(!empty($request->get('contactNos'))) {
+            $users = $users->whereIn('mobile', $request->get('contactNos'));
+        }
+
+        if(!empty($request->get('categoryIds'))) {
+            $userIds = DB::table('category_user')->whereIn('category_id', $request->get('categoryIds'))->pluck('user_id')->unique()->toArray();
+            $users = $users->whereIn('id', $userIds);
+        }
 
         if($request->get('name')) {
             $users = $users->where(function ($query) use($request) {

@@ -17,5 +17,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.' ], f
 
     Route::get('login', 'LoginController@loginForm')->name('loginForm');
     Route::post('login', 'LoginController@login')->name('login');
-    Route::get('dashboard','DashboardController@index')->name('dashboard');
+	Route::get('logout','LoginController@logout')->name('logout');
+
+    Route::group(['middleware' => 'adminAuth'], function () {
+	    Route::get('dashboard','DashboardController@index')->name('dashboard');
+	    Route::get('users','DashboardController@users')->name('users');
+	});
 });

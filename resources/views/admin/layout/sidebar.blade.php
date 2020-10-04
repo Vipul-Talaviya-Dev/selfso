@@ -1,3 +1,6 @@
+@php
+    $admin  = \Auth::user();
+@endphp
 <nav class="page-sidebar" id="sidebar">
     <div id="sidebar-collapse">
         <div class="admin-block d-flex">
@@ -5,7 +8,8 @@
                 <img src="{{asset('assets_admin/img/admin-avatar.png')}}" width="45px" />
             </div>
             <div class="admin-info">
-                <div class="font-strong">Prakash Vadher</div><small>Administrator</small></div>
+                <div class="font-strong">{{ $admin->name }}</div><small>Administrator</small>
+            </div>
         </div>
         <ul class="side-menu metismenu">
             <li>
@@ -14,7 +18,7 @@
                 </a>
             </li>
             <!-- <li class="heading">FEATURES</li> -->
-            <li class="active">
+            <!-- <li class="active">
                 <a href="javascript:;"><i class="sidebar-item-icon fa fa-bookmark"></i>
                     <span class="nav-label">Users</span><i class="fa fa-angle-left arrow"></i></a>
                 <ul class="nav-2-level collapse in">
@@ -25,11 +29,11 @@
                         <a href="#">Add New</a>
                     </li>                    
                 </ul>
-            </li>
+            </li> -->
             
             <li>
-                <a href="icons.html"><i class="sidebar-item-icon fa fa-smile-o"></i>
-                    <span class="nav-label">Icons</span>
+                <a href="{{ route('admin.users') }}"><i class="sidebar-item-icon fa fa-users"></i>
+                    <span class="nav-label">Users</span>
                 </a>
             </li>
            

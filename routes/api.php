@@ -31,7 +31,7 @@ Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
 		Route::post('passwordReset', 'UserController@changePassword');
 		Route::get('profile', 'UserController@index');
 		Route::post('profile/update', 'UserController@profileUpdate');
-		Route::get('search-friends', 'UserController@searchFriends');
+		Route::post('search-friends', 'UserController@searchFriends');
 		
 		Route::get('my-friends', 'UserController@myFriends');
 		Route::get('friend-request-list', 'UserController@friendRequestList');

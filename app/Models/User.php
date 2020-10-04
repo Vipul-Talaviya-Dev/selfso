@@ -12,6 +12,8 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     const ACTIVE = 1, INACTIVE = 0;
+
+    protected $guard = 'user';
     /**
      * The attributes that are mass assignable.
      *

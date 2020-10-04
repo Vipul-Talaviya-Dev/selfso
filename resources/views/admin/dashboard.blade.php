@@ -1,4 +1,4 @@
-@extends('partials.master')
+@extends('admin.layout.master')
 
 @section('title', 'Dashboard')
 

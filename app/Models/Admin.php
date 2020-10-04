@@ -11,6 +11,8 @@ class Admin extends Authenticatable
    	use SoftDeletes;
     use Notifiable;
 
+    protected $guard = 'admin';
+
         /**
      * The attributes that are mass assignable.
      *

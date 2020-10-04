@@ -15,6 +15,11 @@
     <!-- THEME STYLES-->
     <link href="{{asset('assets_admin/css/main.min.css')}}" rel="stylesheet" />
     <!-- PAGE LEVEL STYLES-->
+    <style type="text/css">
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
     @yield('stylesheets')
 </head>
 
@@ -22,11 +27,11 @@
     <div class="page-wrapper">
         
         <!-- START HEADER-->
-        @include('partials.header')
+        @include('admin.layout.header')
         <!-- END HEADER-->
 
         <!-- START SIDEBAR-->
-        @include('partials.sidebar')
+        @include('admin.layout.sidebar')
         <!-- END SIDEBAR-->
         <div class="content-wrapper">
             <!-- START PAGE CONTENT-->
@@ -34,7 +39,7 @@
                 <h1 class="page-title"> @yield('title')</h1>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="index.html"><i class="la la-home font-20"></i></a>
+                        <a href="javascript:void(0);"><i class="la la-home font-20"></i></a>
                     </li>
                 </ol>
             </div>
@@ -42,11 +47,11 @@
                 @yield('content')
             </div>
             <!-- END PAGE CONTENT-->
-            @include('partials.footer')
+            @include('admin.layout.footer')
         </div>
     </div>
     <!-- BEGIN THEME CONFIG PANEL-->
-    @include('partials.theme_config')
+    <!-- @include('admin.layout.theme_config') -->
     <!-- END THEME CONFIG PANEL-->
     <!-- BEGIN PAGA BACKDROPS-->
     <div class="sidenav-backdrop backdrop"></div>
