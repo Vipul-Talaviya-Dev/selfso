@@ -128,8 +128,9 @@ class LoginController extends Controller
                     $user->save(); 
                 }
 
-                if(!empty($request->get('categories'))) {
-                    $user->categories()->sync($request->get('categories'));
+                $categories = array_filter($request->get('categories'));
+                if(!empty($categories)) {
+                    $user->categories()->sync($categories);
                 }
 
                 DB::commit();
