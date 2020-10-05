@@ -128,7 +128,7 @@ class LoginController extends Controller
                     $user->save();
                 }
 
-                if($request->get('categories')) {
+                if(!empty($request->get('categories'))) {
                     $user->categories()->sync($request->get('categories'));
                 }
 
