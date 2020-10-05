@@ -67,10 +67,10 @@ class UserController extends Controller
                 ], Helper::ERROR_CODE);
             }
             #exist image delete
-            if($user->image) {
-                Helper::imageRemove($user->image);
+            if($user->avatar) {
+                Helper::imageRemove($user->avatar);
             }
-            $user->image = $imageResponse['publicKey'];
+            $user->avatar = $imageResponse['publicKey'];
         }
 
         $user->first_name = $request->get('first_name');

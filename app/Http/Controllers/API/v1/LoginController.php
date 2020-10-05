@@ -124,7 +124,7 @@ class LoginController extends Controller
                         ], Helper::ERROR_CODE);
                     }
                     
-                    $user->image = $imageResponse['publicKey'];
+                    $user->avatar = $imageResponse['publicKey'];
                     $user->save();
                 }
 
