@@ -125,7 +125,7 @@ class LoginController extends Controller
                     }
                     
                     $user->avatar = $imageResponse['publicKey'];
-                    $user->save();
+                    $user->save(); 
                 }
 
                 if(!empty($request->get('categories'))) {
