@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Friend;
 use App\Models\Comment;
+use App\Models\SavePost;
 use App\Library\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -79,7 +80,10 @@ class PostController extends Controller
     public function myPosts(Request $request)
     {
         $user = $this->user;
-        $posts = Post::with(['likes', 'comments', 'tagFriends'])->active()->where('user_id', $user->id)->get()->map(function (Post $post) {
+        $posts = Post::latest()->with(['likes', 'comments', 'tagFriends'])->active()->where('user_id', $user->id)->get();
+        $feeds = $discovers = [];
+        foreach ($posts as $post) {
+            $savePost = SavePost::where('user_id', $user->id)->where('post_id', $post->id)->first();
             $tagFriends = $post->tagFriends->map(function ($user) {
                 return [
                     'id' => $user->id,
@@ -88,22 +92,25 @@ class PostController extends Controller
                 ];
             });
             $createdAt = Carbon::parse($post->created_at);
-            return [
+            $feeds[] = [
                 'id' => $post->id,
                 'media' => ($post->media) ? Helper::getImage($post->media) : '',
                 'description' => $post->description ?: '',
                 'link' => $post->link ?: '',
+                'type' => $post->type,
                 'likeCount' => $post->likes->count(),
                 'commentCount' => $post->comments->count(),
+                'savePostFlag' => ($savePost) ? 1 : 0,
                 'createdAt' => $createdAt->ago(),
                 'tagFriends' => $tagFriends,
             ];
-        });
+        }
 
         return response()->json([
             'status' => Helper::SUCCESS_CODE,
             'data' => [
-                'posts' => $posts
+                'feeds' => $feeds,
+                'discovers' => $feeds,
             ]
         ], Helper::SUCCESS_CODE);
     }
@@ -112,7 +119,7 @@ class PostController extends Controller
     {
         $user = $this->user;
         $validator = Validator::make($request->all(), [
-            'postId' => 'required|exists:posts,id',
+            'postId' => 'required|exists:posts,id,deleted_at,NULL',
             'smiley' => 'nullable'
         ]);
 
@@ -146,7 +153,10 @@ class PostController extends Controller
         $user = $this->user;
         $friendIds = Friend::accepted()->where('user_id', $user->id)->pluck('to_user_id')->toArray();
         $userIds = array_merge([$user->id], $friendIds);
-        $posts = Post::latest()->with(['likes', 'tagFriends', 'comments'])->active()->whereIn('user_id', $userIds)->get()->map(function (Post $post) {
+        $posts = Post::latest()->with(['likes', 'tagFriends', 'comments'])->active()->whereIn('user_id', $userIds)->get();
+        $feeds = $discovers = [];
+        foreach ($posts as $post) {
+            $savePost = SavePost::where('user_id', $user->id)->where('post_id', $post->id)->first();
             $tagFriends = $post->tagFriends->map(function ($user) {
                 return [
                     'id' => $user->id,
@@ -155,22 +165,25 @@ class PostController extends Controller
                 ];
             });
             $createdAt = Carbon::parse($post->created_at);
-            return [
+            $feeds[] = [
                 'id' => $post->id,
                 'media' => ($post->media) ? Helper::getImage($post->media) : '',
                 'description' => $post->description ?: '',
                 'link' => $post->link ?: '',
+                'type' => $post->type,
                 'likeCount' => $post->likes->count(),
                 'commentCount' => $post->comments->count(),
+                'savePostFlag' => ($savePost) ? 1 : 0,
                 'createdAt' => $createdAt->ago(),
                 'tagFriends' => $tagFriends,
             ];
-        });
+        }
 
         return response()->json([
             'status' => Helper::SUCCESS_CODE,
             'data' => [
-                'posts' => $posts
+                'feeds' => $feeds,
+                'discovers' => $feeds,
             ]
         ], Helper::SUCCESS_CODE);
     }
@@ -248,6 +261,97 @@ class PostController extends Controller
             'status' => Helper::SUCCESS_CODE,
             'data' => [
                 'comments' => $comments
+            ]
+        ], Helper::SUCCESS_CODE);
+    }
+
+    public function delete($id)
+    {
+        $user = $this->user;
+        if(!$post = Post::latest()->with(['likes', 'comments'])->where('user_id', $user->id)->find($id)) {
+            return response()->json([
+                'status' => Helper::ERROR_CODE,
+                'message' => "Incorrect post selected",
+                'data' => [],
+            ], Helper::ERROR_CODE);
+        }
+
+        $post->likes()->delete();
+        $post->comments()->delete();
+        $post->delete();
+
+        return response()->json([
+            'status' => Helper::SUCCESS_CODE,
+            'message' => "Post has been successfully deleted",
+            'data' => [],
+        ], Helper::SUCCESS_CODE);
+    }
+
+    public function savePostDisSave(Request $request)
+    {
+        $user = $this->user;
+        $validator = Validator::make($request->all(), [
+            'postId' => 'required|exists:posts,id,deleted_at,NULL',
+        ]);
+
+        if ($validator->fails()) {
+            $error = $validator->errors()->all(':message');
+            return response()->json([
+                'status' => Helper::ERROR_CODE,
+                'message' => $error[0],
+                'data' => []
+            ], Helper::ERROR_CODE);
+        }
+
+        if(!SavePost::where('user_id', $user->id)->where('post_id', $request->get('postId'))->exists()) {
+            SavePost::create([
+                'user_id' => $user->id,
+                'post_id' => $request->get('postId'),
+            ]);
+        } else {
+            SavePost::where('user_id', $user->id)->where('post_id', $request->get('postId'))->delete();
+        }
+
+        return response()->json([
+            'status' => Helper::SUCCESS_CODE,
+            'message' => '',
+        ], Helper::SUCCESS_CODE);
+    }
+
+    public function savePostList(Request $request)
+    {
+        $user = $this->user;
+        $postIds = SavePost::where('user_id', $user->id)->pluck('post_id')->toArray();
+        $posts = [];
+        if(!empty($postIds)) {
+            $posts = Post::with(['likes', 'tagFriends', 'comments'])->active()->whereIn('id', $postIds)->get()->map(function (Post $post) {
+                $tagFriends = $post->tagFriends->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->fullName(),
+                        'image' => ($user->avatar) ? Helper::getImage($user->avatar) : Helper::USERIMAGE,
+                    ];
+                });
+                $createdAt = Carbon::parse($post->created_at);
+                return [
+                    'id' => $post->id,
+                    'media' => ($post->media) ? Helper::getImage($post->media) : '',
+                    'description' => $post->description ?: '',
+                    'link' => $post->link ?: '',
+                    'type' => $post->type,
+                    'likeCount' => $post->likes->count(),
+                    'commentCount' => $post->comments->count(),
+                    'savePostFlag' => 1,
+                    'createdAt' => $createdAt->ago(),
+                    'tagFriends' => $tagFriends,
+                ];
+            });
+        }
+
+        return response()->json([
+            'status' => Helper::SUCCESS_CODE,
+            'data' => [
+                'posts' => $posts
             ]
         ], Helper::SUCCESS_CODE);
     }

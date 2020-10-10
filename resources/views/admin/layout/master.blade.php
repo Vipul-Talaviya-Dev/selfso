@@ -68,6 +68,20 @@
     <!-- PAGE LEVEL PLUGINS-->   
     <!-- CORE SCRIPTS-->
     <script src="{{asset('assets_admin/js/app.min.js')}}" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            @if(Session::has('success'))
+            swal("Success...", "{{ Session::get('success') }}", "success");
+            @endif
+            @if(Session::has('warning'))
+            swal("Yikes...", "{{ Session::get('warning') }}", "warning");
+            @endif
+            @if(Session::has('error'))
+            swal("Oops...", "{{ Session::get('error') }}", "error");
+            @endif
+        });
+    </script>
     <!-- PAGE LEVEL SCRIPTS-->
     @yield('scripts')
 </body>

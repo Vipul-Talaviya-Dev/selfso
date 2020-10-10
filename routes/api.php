@@ -44,9 +44,13 @@ Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
 		Route::post('post-like', 'PostController@postLikeDisLike'); // Like & DisLike
 		Route::post('post-comment', 'PostController@comment');
 		Route::post('comments', 'PostController@comments');
+		Route::get('post/delete/{id}', 'PostController@delete');
+		Route::post('post-save', 'PostController@savePostDisSave');
+		Route::get('save-post-list', 'PostController@savePostList');
 
 		Route::get('stories', 'StoryController@index');
 		Route::post('add-story', 'StoryController@create');
 		Route::get('my-stories', 'StoryController@myStories');
+		Route::post('story-comment', 'StoryController@storyMessage');
 	});
 });

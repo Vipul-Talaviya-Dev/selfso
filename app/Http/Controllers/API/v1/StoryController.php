@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Story;
 use App\Models\Friend;
 use App\Library\Helper;
+use App\Models\StoryMessage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Api\V1\Controller;
@@ -50,6 +51,11 @@ class StoryController extends Controller
                 'media' => ($story->media) ? Helper::getImage($story->media) : '',
                 'description' => $story->description ?: '',
                 'createdAt' => $createdAt->ago(),
+                'user' => [
+                    'id' => $story->user->id,
+                    'name' => $story->user->fullName(),
+                    'image' => ($story->user->avatar) ? Helper::getImage($story->user->avatar) : Helper::USERIMAGE,
+                ],
             ];
         });
 
@@ -102,6 +108,38 @@ class StoryController extends Controller
         return response()->json([
             'status' => Helper::CREATE_CODE,
             'message' => 'Successfully add new story.',
+            'data' => []
+        ], Helper::CREATE_CODE);
+    }
+
+    public function storyMessage(Request $request)
+    {
+        $user = $this->user;
+        $validator = Validator::make($request->all(), [
+            'storyId' => 'required|exists:stories,id',
+            'storyUserId' => 'required|exists:users,id',
+            'message' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $error = $validator->errors()->all(':message');
+            return response()->json([
+                'status' => Helper::ERROR_CODE,
+                'message' => $error[0],
+                'data' => [],
+            ], Helper::ERROR_CODE);
+        }
+        
+        StoryMessage::create([
+            'login_user_id' => $user->id,
+            'to_user_id' => $request->get('storyUserId'),
+            'story_id' => $request->get('storyId'),
+            'message' => $request->get('message'),
+        ]);
+
+        return response()->json([
+            'status' => Helper::CREATE_CODE,
+            'message' => 'Successfully add story message.',
             'data' => []
         ], Helper::CREATE_CODE);
     }

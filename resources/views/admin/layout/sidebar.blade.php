@@ -30,7 +30,11 @@
                     </li>                    
                 </ul>
             </li> -->
-            
+            <li>
+                <a href="{{ route('admin.categories') }}"><i class="sidebar-item-icon fa fa-bookmark"></i>
+                    <span class="nav-label">Category</span>
+                </a>
+            </li>
             <li>
                 <a href="{{ route('admin.users') }}"><i class="sidebar-item-icon fa fa-users"></i>
                     <span class="nav-label">Users</span>
