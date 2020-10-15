@@ -7,6 +7,7 @@ use Validator;
 use App\Models\User;
 use App\Models\Friend;
 use App\Library\Helper;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Api\V1\Controller;
@@ -42,7 +43,6 @@ class UserController extends Controller
                 Rule::unique('users')->ignore($user->id),
             ],
             'mobile' => 'required|numeric',
-            'categories' => 'nullable|array'
         ]);
 
         if ($validator->fails()) {
@@ -81,9 +81,13 @@ class UserController extends Controller
         $user->save();
 
         if($request->get('categories')) {
-            $user->categories()->sync($request->get('categories'));
+            $categories = array_filter(json_decode($request->get('categories'), true));
+            if(!empty($categories)) {
+                $ids = Category::select('id')->whereIn('id', $categories)->pluck('id')->toArray();
+                (!empty($ids)) ? $user->categories()->sync($ids) : '';
+            }
         }
-
+        
         return response()->json([
             'status' => Helper::SUCCESS_CODE,
             'message' => 'Successfully Profile Updated.',
@@ -263,13 +267,19 @@ class UserController extends Controller
         $loginUser = $this->user;
         $users = User::with('friend')->active()->where('id', '!=', $loginUser->id);
 
-        if(!empty($request->get('contactNos'))) {
-            $users = $users->whereIn('mobile', $request->get('contactNos'));
+        if($request->get('contactNos')) {
+            $contactNos = array_filter(json_decode($request->get('contactNos'), true));
+            if(!empty($contactNos)) {
+                $users = $users->whereIn('mobile', $contactNos);
+            }
         }
 
-        if(!empty($request->get('categoryIds'))) {
-            $userIds = DB::table('category_user')->whereIn('category_id', $request->get('categoryIds'))->pluck('user_id')->unique()->toArray();
-            $users = $users->whereIn('id', $userIds);
+        if($request->get('categoryIds')) {
+            $categories = array_filter(json_decode($request->get('categoryIds'), true));
+            if(!empty($categories)) {
+                $userIds = DB::table('category_user')->whereIn('category_id', $request->get('categoryIds'))->pluck('user_id')->unique()->toArray();
+                $users = $users->whereIn('id', $userIds);
+            }
         }
 
         if($request->get('name')) {

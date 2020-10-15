@@ -9,6 +9,7 @@ use Validator;
 use Exception;
 use App\Models\User;
 use App\Library\Helper;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -128,9 +129,12 @@ class LoginController extends Controller
                     $user->save(); 
                 }
 
-                $categories = array_filter($request->get('categories'));
-                if(!empty($categories)) {
-                    $user->categories()->sync($categories);
+                if($request->get('categories')) {
+                    $categories = array_filter(json_decode($request->get('categories'), true));
+                    if(!empty($categories)) {
+                        $ids = Category::select('id')->whereIn('id', $categories)->pluck('id')->toArray();
+                        (!empty($ids)) ? $user->categories()->sync($ids) : '';
+                    }
                 }
 
                 DB::commit();

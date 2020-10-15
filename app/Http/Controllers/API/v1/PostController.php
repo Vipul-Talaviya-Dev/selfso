@@ -62,8 +62,9 @@ class PostController extends Controller
         ]);
 
         if($request->get('tagFriends')) {
-            if(!empty($request->get('tagFriends'))) {
-                $tagFriendIds = User::select('id')->whereIn('id', $request->get('tagFriends'))->pluck('id')->toArray();
+            $tagFriends = array_filter(json_decode($request->get('tagFriends'), true));
+            if(!empty($tagFriends)) {
+                $tagFriendIds = User::select('id')->whereIn('id', $tagFriends)->pluck('id')->toArray();
                 if(!empty($tagFriendIds)) {
                     $post->tagFriends()->sync($tagFriendIds);
                 }
