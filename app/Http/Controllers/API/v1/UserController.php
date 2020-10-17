@@ -269,14 +269,14 @@ class UserController extends Controller
         $users = User::with('friend')->active()->where('id', '!=', $loginUser->id);
 
         if($request->get('contactNos')) {
-            $contactNos = array_filter(json_decode($request->get('contactNos'), true));
+            $contactNos = array_filter($request->get('contactNos'));
             if(!empty($contactNos)) {
                 $users = $users->whereIn('mobile', $contactNos);
             }
         }
 
         if($request->get('categoryIds')) {
-            $categories = array_filter(json_decode($request->get('categoryIds'), true));
+            $categories = array_filter($request->get('categoryIds'));
             if(!empty($categories)) {
                 $userIds = DB::table('category_user')->whereIn('category_id', $request->get('categoryIds'))->pluck('user_id')->unique()->toArray();
                 $users = $users->whereIn('id', $userIds);

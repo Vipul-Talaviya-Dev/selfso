@@ -18,6 +18,7 @@ class CreateStoriesTable extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->string('media')->nullable()->comment('Image, Video, Doc etc');
             $table->text('description')->nullable();
+            $table->tinyInteger('add_memory')->default(1)->unsigned()->comment('1: Yes, 0: No');
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('user_id')->references('id')->on('users');

@@ -81,7 +81,7 @@ class PostController extends Controller
     public function myPosts(Request $request)
     {
         $user = $this->user;
-        $posts = Post::latest()->with(['likes', 'comments', 'tagFriends'])->active()->where('user_id', $user->id)->get();
+        $posts = Post::latest()->with(['user', 'likes', 'comments', 'tagFriends'])->active()->where('user_id', $user->id)->get();
         $feeds = $discovers = [];
         foreach ($posts as $post) {
             $savePost = SavePost::where('user_id', $user->id)->where('post_id', $post->id)->first();
@@ -103,6 +103,14 @@ class PostController extends Controller
                 'commentCount' => $post->comments->count(),
                 'savePostFlag' => ($savePost) ? 1 : 0,
                 'createdAt' => $createdAt->ago(),
+                'user' => [
+                    'id' => $post->user->id,
+                    'first_name' => $post->user->first_name,
+                    'last_name' => $post->user->last_name,
+                    'email' => $post->user->email,
+                    'mobile' => $post->user->mobile,
+                    'image' => ($post->user->avatar) ? Helper::getImage($post->user->avatar) : Helper::USERIMAGE,
+                ],
                 'tagFriends' => $tagFriends,
             ];
         }
@@ -154,7 +162,7 @@ class PostController extends Controller
         $user = $this->user;
         $friendIds = Friend::accepted()->where('user_id', $user->id)->pluck('to_user_id')->toArray();
         $userIds = array_merge([$user->id], $friendIds);
-        $posts = Post::latest()->with(['likes', 'tagFriends', 'comments'])->active()->whereIn('user_id', $userIds)->get();
+        $posts = Post::latest()->with(['user', 'likes', 'tagFriends', 'comments'])->active()->whereIn('user_id', $userIds)->get();
         $feeds = $discovers = [];
         foreach ($posts as $post) {
             $savePost = SavePost::where('user_id', $user->id)->where('post_id', $post->id)->first();
@@ -176,6 +184,14 @@ class PostController extends Controller
                 'commentCount' => $post->comments->count(),
                 'savePostFlag' => ($savePost) ? 1 : 0,
                 'createdAt' => $createdAt->ago(),
+                'user' => [
+                    'id' => $post->user->id,
+                    'first_name' => $post->user->first_name,
+                    'last_name' => $post->user->last_name,
+                    'email' => $post->user->email,
+                    'mobile' => $post->user->mobile,
+                    'image' => ($post->user->avatar) ? Helper::getImage($post->user->avatar) : Helper::USERIMAGE,
+                ],
                 'tagFriends' => $tagFriends,
             ];
         }

@@ -24,6 +24,11 @@ class Post extends Model
      */
     protected $dates = ['deleted_at'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    
     public function tagFriends()
     {
         return $this->belongsToMany(User::class);

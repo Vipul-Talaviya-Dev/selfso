@@ -14,7 +14,7 @@ class Story extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'media', 'description',
+        'user_id', 'media', 'description', 'add_memory'
     ];
     /**
      * The attributes that should be returned as Carbon Instance

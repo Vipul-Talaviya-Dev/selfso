@@ -25,9 +25,13 @@ class StoryController extends Controller
                 'media' => ($story->media) ? Helper::getImage($story->media) : '',
                 'description' => $story->description ?: '',
                 'createdAt' => $createdAt->ago(),
+                'addMemory' => $story->add_memory,
                 'user' => [
                     'id' => $story->user->id,
-                    'name' => $story->user->fullName(),
+                    'first_name' => $story->user->first_name,
+                    'last_name' => $story->user->last_name,
+                    'email' => $story->user->email,
+                    'mobile' => $story->user->mobile,
                     'image' => ($story->user->avatar) ? Helper::getImage($story->user->avatar) : Helper::USERIMAGE,
                 ],
             ];
@@ -51,9 +55,13 @@ class StoryController extends Controller
                 'media' => ($story->media) ? Helper::getImage($story->media) : '',
                 'description' => $story->description ?: '',
                 'createdAt' => $createdAt->ago(),
+                'addMemory' => $story->add_memory,
                 'user' => [
                     'id' => $story->user->id,
-                    'name' => $story->user->fullName(),
+                    'first_name' => $story->user->first_name,
+                    'last_name' => $story->user->last_name,
+                    'email' => $story->user->email,
+                    'mobile' => $story->user->mobile,
                     'image' => ($story->user->avatar) ? Helper::getImage($story->user->avatar) : Helper::USERIMAGE,
                 ],
             ];
@@ -103,6 +111,7 @@ class StoryController extends Controller
             'user_id' => $user->id,
             'media' => $publicKey,
             'description' => $request->get('description'),
+            'add_memory' => $request->get('addMemory') ?: 0,
         ]);
 
         return response()->json([
