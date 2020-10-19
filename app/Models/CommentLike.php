@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Story extends Model
+class CommentLike extends Model
 {
-	use SoftDeletes;
-	 /**
+    use SoftDeletes;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'user_id', 'media', 'description', 'add_memory', 'type'
+        'comment_id', 'user_id',
     ];
     /**
      * The attributes that should be returned as Carbon Instance
@@ -22,9 +23,4 @@ class Story extends Model
      * @var array
      */
     protected $dates = ['deleted_at'];
-
-    public function user()
-    {
-    	return $this->belongsTo(User::class);
-    }
 }

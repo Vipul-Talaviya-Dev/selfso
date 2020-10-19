@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use DB;
 use Validator;
 use Carbon\Carbon;
 use App\Models\Like;
@@ -10,6 +11,8 @@ use App\Models\User;
 use App\Models\Friend;
 use App\Models\Comment;
 use App\Models\SavePost;
+use App\Models\CommentLike;
+
 use App\Library\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -25,7 +28,7 @@ class PostController extends Controller
             'media' => 'nullable',
             'description'=> 'nullable',
             'link'=> 'nullable|url',
-            'type'=> 'nullable|in:0,1,2',
+            'type'=> 'required|in:1,2',
         ]);
 
         if ($validator->fails()) {
@@ -39,7 +42,7 @@ class PostController extends Controller
         $publicKey = NULL;
         if($request->file('media')) {
             $profilePath = Helper::storeUserImagePath($user->id).'posts/';
-            $imageResponse = Helper::postUpload($profilePath, $request->file('media'));
+            $imageResponse = Helper::postUpload($profilePath, $request->file('media'), $request->get('type'));
 
             if($imageResponse['status'] == false) {
                 DB::rollback();
@@ -93,15 +96,17 @@ class PostController extends Controller
                 ];
             });
             $createdAt = Carbon::parse($post->created_at);
+            $postLike = $post->likes->where('user_id', $user->id)->where('post_id', $post->id)->first();
             $feeds[] = [
                 'id' => $post->id,
-                'media' => ($post->media) ? Helper::getImage($post->media) : '',
+                'media' => ($post->media) ? Helper::getImage($post->media, $post->type) : '',
                 'description' => $post->description ?: '',
                 'link' => $post->link ?: '',
                 'type' => $post->type,
                 'likeCount' => $post->likes->count(),
                 'commentCount' => $post->comments->count(),
                 'savePostFlag' => ($savePost) ? 1 : 0,
+                'postLikeFlag' => ($postLike) ? 1 : 0,
                 'createdAt' => $createdAt->ago(),
                 'user' => [
                     'id' => $post->user->id,
@@ -174,15 +179,17 @@ class PostController extends Controller
                 ];
             });
             $createdAt = Carbon::parse($post->created_at);
+            $postLike = $post->likes->where('user_id', $user->id)->where('post_id', $post->id)->first();
             $feeds[] = [
                 'id' => $post->id,
-                'media' => ($post->media) ? Helper::getImage($post->media) : '',
+                'media' => ($post->media) ? Helper::getImage($post->media, $post->type) : '',
                 'description' => $post->description ?: '',
                 'link' => $post->link ?: '',
                 'type' => $post->type,
                 'likeCount' => $post->likes->count(),
                 'commentCount' => $post->comments->count(),
                 'savePostFlag' => ($savePost) ? 1 : 0,
+                'postLikeFlag' => ($postLike) ? 1 : 0,
                 'createdAt' => $createdAt->ago(),
                 'user' => [
                     'id' => $post->user->id,
@@ -254,7 +261,7 @@ class PostController extends Controller
             ], Helper::ERROR_CODE);
         }
 
-        $comments = Comment::latest()->with(['user']);
+        $comments = Comment::latest()->with(['user', 'likes']);
 
         if($request->get('commentId')) {
             $comments = $comments->where('parent_id', $request->get('commentId'));
@@ -263,13 +270,19 @@ class PostController extends Controller
         }
 
         $comments = $comments->where('post_id', $request->get('postId'))->get()->map(function (Comment $comment) {
+            $createdAt = Carbon::parse($comment->created_at);
             return [
                 'id' => $comment->id,
                 'comment' => $comment->message,
+                'createdAt' => $createdAt->ago(),
+                'likeCount' => $comment->likes()->count(),
                 'user' => [
-                    'id' => ($comment->user) ? $comment->user->id : 0,
-                    'name' => ($comment->user) ? $comment->user->fullName() : '',
-                    'image' => ($comment->user->avatar) ? Helper::getImage($comment->user->avatar) : Helper::USERIMAGE,
+                    'id' => $comment->user->id,
+                    'first_name' => $comment->user->first_name,
+                    'last_name' => $comment->user->last_name,
+                    'email' => $comment->user->email,
+                    'mobile' => $comment->user->mobile,
+                    'image' => ($comment->user->avatar) ? Helper::getImage($post->user->avatar) : Helper::USERIMAGE,
                 ]
             ];
         });
@@ -282,6 +295,36 @@ class PostController extends Controller
         ], Helper::SUCCESS_CODE);
     }
 
+    public function commentLikeDisLike(Request $request)
+    {
+        $user = $this->user;
+        $validator = Validator::make($request->all(), [
+            'commentId' => 'required|exists:comments,id,deleted_at,NULL',
+        ]);
+
+        if ($validator->fails()) {
+            $error = $validator->errors()->all(':message');
+            return response()->json([
+                'status' => Helper::ERROR_CODE,
+                'message' => $error[0],
+                'data' => []
+            ], Helper::ERROR_CODE);
+        }
+
+        if(!CommentLike::where('user_id', $user->id)->where('comment_id', $request->get('commentId'))->exists()) {
+            CommentLike::create([
+                'user_id' => $user->id,
+                'comment_id' => $request->get('commentId'),
+            ]);
+        } else {
+            CommentLike::where('user_id', $user->id)->where('comment_id', $request->get('commentId'))->delete();
+        }
+
+        return response()->json([
+            'status' => Helper::SUCCESS_CODE,
+            'message' => '',
+        ], Helper::SUCCESS_CODE);
+    }
     public function delete($id)
     {
         $user = $this->user;
@@ -352,7 +395,7 @@ class PostController extends Controller
                 $createdAt = Carbon::parse($post->created_at);
                 return [
                     'id' => $post->id,
-                    'media' => ($post->media) ? Helper::getImage($post->media) : '',
+                    'media' => ($post->media) ? Helper::getImage($post->media, $post->type) : '',
                     'description' => $post->description ?: '',
                     'link' => $post->link ?: '',
                     'type' => $post->type,

@@ -46,37 +46,65 @@ class Helper
 		];
 
 	}
-
-	public static function postUpload($path, $file)
+	/**
+	 * @type~ 1: image, 2: Video
+	 * */
+	public static function postUpload($path, $file, $type = 1)
 	{
-		if($file->getSize() > 2097152) {
+		try {
+			if($file->getSize() > 2097152) {
+				return [
+					'status' => false,
+					'message' => 'The image size must be less than 2 Mb.',
+					'publicKey' => '',
+				];
+			}
+			// dd($file->getClientOriginalExtension(), $file->getRealPath(), $file->getSize(), $file->getClientOriginalName());
+			if($type == 2) {
+				$publicKey = Cloudder::uploadVideo($file, null, ['folder' => $path])->getPublicId(); // public key
+			} else {
+				$publicKey = Cloudder::upload($file, null, ['folder' => $path])->getPublicId(); // public key
+			}
+	        $publicKey = $publicKey.'.'.$file->getClientOriginalExtension();
+	        return [
+				'status' => true,
+				'publicKey' => $publicKey,
+				'message' => 'successfully uploaded',
+			];			
+		} catch (\Exception $e) {
 			return [
 				'status' => false,
-				'message' => 'The image size must be less than 2 Mb.',
 				'publicKey' => '',
+				'message' => $e->getMessage(),
 			];
 		}
-
-		$publicKey = Cloudder::upload($file, null, ['folder' => $path])->getPublicId(); // public key
-        
-        return [
-			'status' => true,
-			'publicKey' => $publicKey,
-			'message' => 'successfully uploaded',
-		];
-
 	}
 
-	public static function imageRemove($fileName)
+	/**
+	 * type 1: image, 2: video
+	 * */
+	public static function imageRemove($fileName, $type = 1)
 	{
-		Cloudder::destroyImage($fileName, []);
-        Cloudder::delete($fileName, []);
+		$options = [];
+		if($type == 2) {
+			$options = ['resource_type' => 'video'];
+		}
+		
+		Cloudder::destroyImage($fileName, $options);
+        Cloudder::delete($fileName, $options);
         return true;
 	}
 	
-	public static function getImage($fileName)
+	/**
+	 * type 1: image, 2: video
+	 * */
+	public static function getImage($fileName, $type = 1)
 	{
-		return Cloudder::secureShow($fileName, []);
+		$options = [];
+		if($type == 2) {
+			$options = ['resource_type' => 'video'];
+		}
+		return Cloudder::secureShow($fileName, $options);
 	}
 
 	public static function getUserIpAddr()

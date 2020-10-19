@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStoriesTable extends Migration
+class CreateCommentLikesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,13 @@ class CreateStoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('stories', function (Blueprint $table) {
+        Schema::create('comment_likes', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->bigInteger('comment_id')->unsigned();
             $table->bigInteger('user_id')->unsigned();
-            $table->string('media')->nullable()->comment('Image, Video, Doc etc');
-            $table->text('description')->nullable();
-            $table->tinyInteger('type')->default(0)->unsigned()->comment('1: Image, 2: Video');
-            $table->tinyInteger('add_memory')->default(1)->unsigned()->comment('1: Yes, 0: No');
             $table->timestamps();
             $table->softDeletes();
+            $table->foreign('comment_id')->references('id')->on('comments');
             $table->foreign('user_id')->references('id')->on('users');
         });
     }
@@ -33,6 +31,6 @@ class CreateStoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stories');
+        Schema::dropIfExists('comment_likes');
     }
 }

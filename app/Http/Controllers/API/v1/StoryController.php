@@ -22,10 +22,11 @@ class StoryController extends Controller
             $createdAt = Carbon::parse($story->created_at);
             return [
                 'id' => $story->id,
-                'media' => ($story->media) ? Helper::getImage($story->media) : '',
+                'media' => ($story->media) ? Helper::getImage($story->media, $story->type) : '',
                 'description' => $story->description ?: '',
                 'createdAt' => $createdAt->ago(),
                 'addMemory' => $story->add_memory,
+                'type' => $story->type, // 1: Image, 2: Video
                 'user' => [
                     'id' => $story->user->id,
                     'first_name' => $story->user->first_name,
@@ -52,10 +53,11 @@ class StoryController extends Controller
             $createdAt = Carbon::parse($story->created_at);
             return [
                 'id' => $story->id,
-                'media' => ($story->media) ? Helper::getImage($story->media) : '',
+                'media' => ($story->media) ? Helper::getImage($story->media, $story->type) : '',
                 'description' => $story->description ?: '',
                 'createdAt' => $createdAt->ago(),
                 'addMemory' => $story->add_memory,
+                'type' => $story->type,
                 'user' => [
                     'id' => $story->user->id,
                     'first_name' => $story->user->first_name,
@@ -81,6 +83,7 @@ class StoryController extends Controller
         $validator = Validator::make($request->all(), [
             'media' => 'nullable',
             'description'=> 'nullable',
+            'type'=> 'required|in:1,2',
         ]);
 
         if ($validator->fails()) {
@@ -94,7 +97,7 @@ class StoryController extends Controller
         $publicKey = NULL;
         if($request->file('media')) {
             $profilePath = Helper::storeUserImagePath($user->id).'story/';
-            $imageResponse = Helper::postUpload($profilePath, $request->file('media'));
+            $imageResponse = Helper::postUpload($profilePath, $request->file('media'), $request->get('type'));
 
             if($imageResponse['status'] == false) {
                 DB::rollback();

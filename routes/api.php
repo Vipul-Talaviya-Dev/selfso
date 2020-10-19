@@ -43,6 +43,7 @@ Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
 		Route::get('posts', 'PostController@posts');
 		Route::post('post-like', 'PostController@postLikeDisLike'); // Like & DisLike
 		Route::post('post-comment', 'PostController@comment');
+		Route::post('comment-like', 'PostController@commentLikeDisLike');
 		Route::post('comments', 'PostController@comments');
 		Route::get('post/delete/{id}', 'PostController@delete');
 		Route::post('post-save', 'PostController@savePostDisSave');
