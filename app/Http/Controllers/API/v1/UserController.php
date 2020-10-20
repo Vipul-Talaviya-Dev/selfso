@@ -145,11 +145,14 @@ class UserController extends Controller
     public function friendRequestList()
     {
         $user = $this->user;
-        $friends = Friend::pending()->where('user_id', $user->id)->get()->map(function (Friend $friend) {
+        $friends = Friend::pending()->where('to_user_id', $user->id)->get()->map(function (Friend $friend) {
             if(isset($friend->user)) {
                 return [
-                    'userConfirmId' => $friend->to_user_id,
-                    'name' => $friend->user->fullName(),
+                    'userConfirmId' => $friend->user_id,
+                    'first_name' => $friend->user->first_name,
+                    'last_name' => $friend->user->last_name,
+                    'email' => $friend->user->email,
+                    'mobile' => $friend->user->mobile,
                     'image' => ($friend->user->avatar) ? Helper::getImage($friend->user->avatar) : Helper::USERIMAGE,
                 ];
             }
@@ -202,7 +205,7 @@ class UserController extends Controller
     {
         $user = $this->user;
         $validator = Validator::make($request->all(), [
-            'userConfirmId'=> 'required|exists:friends,to_user_id',
+            'userConfirmId'=> 'required|exists:friends,user_id',
             'status' => 'required|numeric|in:1,2'
         ]);
 
@@ -215,7 +218,7 @@ class UserController extends Controller
             ], Helper::ERROR_CODE);
         }
         $message = '';
-        if($friend = Friend::where('user_id', $user->id)->where('to_user_id', $request->get('userConfirmId'))->first()) {
+        if($friend = Friend::where('user_id', $request->get('userConfirmId'))->where('to_user_id', $user->id)->first()) {
             if($request->get('status') == 1) {
                 $friend->status = Friend::ACCEPTED;
                 $friend->save();
@@ -237,20 +240,20 @@ class UserController extends Controller
     public function myFriends(Request $request)
     {
         $user = $this->user;
-        $friends = Friend::with(['user'])->accepted()->where('user_id', $user->id);
+        $friends = Friend::with(['toUser'])->accepted()->where('user_id', $user->id);
 
         if($request->get('name')) {
-            $friends = $friends->whereHas('user', function ($query) use($request) {
+            $friends = $friends->whereHas('toUser', function ($query) use($request) {
                 $query->where('first_name', 'Like', '%'.$request->get('name').'%')->orWhere('last_name', 'Like', '%'.$request->get('name').'%')->orWhere('email', 'Like', '%'.$request->get('name').'%');
             });
         }
 
         $friends = $friends->get()->map(function (Friend $friend) {
-            if(isset($friend->user)) {
+            if(isset($friend->toUser)) {
                 return [
-                    'id' => $friend->user->id,
-                    'name' => $friend->user->fullName(),
-                    'image' => ($friend->user->avatar) ? Helper::getImage($friend->user->avatar) : Helper::USERIMAGE,
+                    'id' => $friend->toUser->id,
+                    'name' => $friend->toUser->fullName(),
+                    'image' => ($friend->toUser->avatar) ? Helper::getImage($friend->toUser->avatar) : Helper::USERIMAGE,
                 ];
             }
         });

@@ -84,7 +84,12 @@ class PostController extends Controller
     public function myPosts(Request $request)
     {
         $user = $this->user;
-        $posts = Post::latest()->with(['user', 'likes', 'comments', 'tagFriends'])->active()->where('user_id', $user->id)->get();
+        $posts = Post::latest()->with(['user', 'likes', 'comments', 'tagFriends'])->active()->where('user_id', $user->id);
+        if($request->get('categoryId')) {
+            $posts = $posts->where('category_id', $request->get('categoryId'));
+        }
+        $posts = $posts->get();
+
         $feeds = $discovers = [];
         foreach ($posts as $post) {
             $savePost = SavePost::where('user_id', $user->id)->where('post_id', $post->id)->first();
@@ -167,7 +172,12 @@ class PostController extends Controller
         $user = $this->user;
         $friendIds = Friend::accepted()->where('user_id', $user->id)->pluck('to_user_id')->toArray();
         $userIds = array_merge([$user->id], $friendIds);
-        $posts = Post::latest()->with(['user', 'likes', 'tagFriends', 'comments'])->active()->whereIn('user_id', $userIds)->get();
+        $posts = Post::latest()->with(['user', 'likes', 'tagFriends', 'comments'])->active()->whereIn('user_id', $userIds);
+        if($request->get('categoryId')) {
+            $posts = $posts->where('category_id', $request->get('categoryId'));
+        }
+        $posts = $posts->get();
+        
         $feeds = $discovers = [];
         foreach ($posts as $post) {
             $savePost = SavePost::where('user_id', $user->id)->where('post_id', $post->id)->first();
@@ -269,20 +279,22 @@ class PostController extends Controller
             $comments = $comments->where('parent_id', NULL);
         }
 
-        $comments = $comments->where('post_id', $request->get('postId'))->get()->map(function (Comment $comment) {
+        $comments = $comments->where('post_id', $request->get('postId'))->get()->map(function (Comment $comment) use($user) {
             $createdAt = Carbon::parse($comment->created_at);
+            $commentLike = $comment->likes->where('user_id', $user->id)->where('comment_id', $comment->id)->first();
             return [
                 'id' => $comment->id,
                 'comment' => $comment->message,
                 'createdAt' => $createdAt->ago(),
                 'likeCount' => $comment->likes()->count(),
+                'commentLikeFlag' => ($commentLike) ? 1 : 0,
                 'user' => [
                     'id' => $comment->user->id,
                     'first_name' => $comment->user->first_name,
                     'last_name' => $comment->user->last_name,
                     'email' => $comment->user->email,
                     'mobile' => $comment->user->mobile,
-                    'image' => ($comment->user->avatar) ? Helper::getImage($post->user->avatar) : Helper::USERIMAGE,
+                    'image' => ($comment->user->avatar) ? Helper::getImage($comment->user->avatar) : Helper::USERIMAGE,
                 ]
             ];
         });
