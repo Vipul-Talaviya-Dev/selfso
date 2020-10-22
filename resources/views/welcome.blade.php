@@ -86,6 +86,7 @@
 
                 <div class="links">
                     <a href="{{ route('admin.login') }}">Admin</a>
+                    <a href="/api/documents">Api Document</a>
                 </div>
             </div>
         </div>

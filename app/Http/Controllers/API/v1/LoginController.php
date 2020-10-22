@@ -82,8 +82,8 @@ class LoginController extends Controller
             $validator = Validator::make($request->all(), [
                 'first_name'=> 'required',
                 'last_name'=> 'required',
-                'email'=> 'nullable|email|unique:users,email',
-                'mobile' => 'nullable|numeric',
+                'email'=> 'required|email|unique:users,email',
+                'mobile' => 'required|numeric',
                 'image' => 'nullable|image',
                 'password' => 'required',
                 'accountType' => 'required|numeric|in:1,2',

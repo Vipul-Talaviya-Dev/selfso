@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Friend;
 use App\Models\Comment;
 use App\Models\SavePost;
+use App\Models\PostShare;
 use App\Models\CommentLike;
 
 use App\Library\Helper;
@@ -425,6 +426,40 @@ class PostController extends Controller
             'data' => [
                 'posts' => $posts
             ]
+        ], Helper::SUCCESS_CODE);
+    }
+
+    public function postShare(Request $request)
+    {
+        $user = $this->user;
+        $validator = Validator::make($request->all(), [
+            'postId' => 'required|exists:posts,id,deleted_at,NULL',
+        ]);
+
+        if ($validator->fails()) {
+            $error = $validator->errors()->all(':message');
+            return response()->json([
+                'status' => Helper::ERROR_CODE,
+                'message' => $error[0],
+                'data' => []
+            ], Helper::ERROR_CODE);
+        }
+
+        foreach (array_filter($request->get('userIds')) as $userId) {
+            if(!PostShare::where('user_id', $userId)->where('post_id', $request->get('postId'))->exists()) {
+                PostShare::create([
+                    'user_id' => $userId,
+                    'post_id' => $request->get('postId'),
+                ]);
+            }
+            /*else {
+                PostShare::where('user_id', $userId)->where('post_id', $request->get('postId'))->delete();
+            }*/
+        }
+
+        return response()->json([
+            'status' => Helper::SUCCESS_CODE,
+            'message' => '',
         ], Helper::SUCCESS_CODE);
     }
 }

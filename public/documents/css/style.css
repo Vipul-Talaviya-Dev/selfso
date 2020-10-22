@@ -1,0 +1,222 @@
+@import url(https://fonts.googleapis.com/css?family=Lato);
+@charset 'UTF-8';
+
+html,body{
+	background: #e7e8e9;
+	font-family: Verdana;
+	font-size: 13px;
+}
+/* Base Styles */
+#description{
+	background-color:#ebebeb;
+	border-color: #dee0de;
+	border:1px;
+	min-height: 20px;
+}
+#cssmenu,
+#cssmenu ul,
+#cssmenu li,
+#cssmenu a {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	list-style: none;
+	font-weight: normal;
+	text-decoration: none;
+	line-height: 1;
+	font-family: 'Lato', sans-serif;
+	font-size: 14px;
+	position: relative;
+}
+#cssmenu a {
+	line-height: 1.3;
+	padding: 6px 15px;
+}
+#cssmenu {
+	width: 200px;
+	float: left;
+	margin-top: 20px;
+}
+#cssmenu > ul > li {
+	cursor: pointer;
+	background: #000;
+	border-bottom: 1px solid #4c4e53;
+}
+#cssmenu > ul > li:last-child {
+	border-bottom: 1px solid #3e3d3c;
+}
+#cssmenu > ul > li > a {
+	font-size: 13px;
+	display: block;
+	color: #ffffff;
+	text-shadow: 0 1px 1px #000;
+	background: #64676e;
+	background: -moz-linear-gradient(#64676e 0%, #4c4e53 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #64676e), color-stop(100%, #4c4e53));
+	background: -webkit-linear-gradient(#64676e 0%, #4c4e53 100%);
+	background: linear-gradient(#64676e 0%, #4c4e53 100%);
+}
+#cssmenu > ul > li > a:hover {
+	text-decoration: none;
+}
+#cssmenu > ul > li.active {
+	border-bottom: none;
+}
+#cssmenu > ul > li.active > a {
+	background: #97c700;
+	background: -moz-linear-gradient(#97c700 0%, #709400 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #97c700), color-stop(100%, #709400));
+	background: -webkit-linear-gradient(#97c700 0%, #709400 100%);
+	background: linear-gradient(#97c700 0%, #709400 100%);
+	color: #4e5800;
+	text-shadow: 0 1px 1px #709400;
+}
+#cssmenu > ul > li.has-sub > a:after {
+	content: '';
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	border: 5px solid transparent;
+	border-left: 5px solid #ffffff;
+}
+#cssmenu > ul > li.has-sub.active > a:after {
+	right: 14px;
+	top: 12px;
+	border: 5px solid transparent;
+	border-top: 5px solid #4e5800;
+}
+/* Sub menu */
+#cssmenu ul ul {
+	padding: 0;
+	display: none;
+}
+#cssmenu ul ul a {
+	background: #efefef;
+	display: block;
+	color: #797979;
+	font-size: 13px;
+}
+#cssmenu ul ul li {
+	border-bottom: 1px solid #c9c9c9;
+}
+#cssmenu ul ul li.odd a {
+	background: #e5e5e5;
+}
+#cssmenu ul ul li:last-child {
+	border: none;
+}
+
+hr{
+	border:none;
+	border-bottom: #fff solid 1px;
+	border-top: #ccc solid 1px;
+}
+h2{
+	font-size: 20px;
+	text-shadow: #fff 1px 1px 1px;
+	background: #ccc;
+	text-indent: 10px;
+	padding: 5px;
+	margin-top: 20px;
+}
+h3{
+	margin-top: 30px;	
+}
+ul{
+	list-style: none;
+	word-spacing: 3px;
+	
+}
+ul > li{
+	margin: 3px 0;
+	word-spacing: 2px;
+	letter-spacing: 1px;
+}
+ul > li > strong{
+	letter-spacing: 2px;
+}
+/*******************
+STRUCTURE
+********************/
+.panel{
+	
+}
+.panel.left{
+	position: fixed;
+	width: 200px;
+	top: 10px;
+	left: 5px;
+}
+.panel.right{
+	position: relative;
+	left: 3%;
+	min-width: 400px;
+	width: 75%;
+	float: left;
+	
+}
+.description{
+	margin: 5px 0;
+	padding: 10px;
+	background: #ddd;
+	font-family: cursive;
+	font-style: italic;
+}
+.example{
+	padding: 10px;
+	background: #ddd;
+	border:#999 solid 1px;
+	border-top:none;
+}
+.call{
+	border: #999 solid 1px;
+	background:#fff;	
+}
+.method{
+	display: inline-block;
+	padding:10px;
+	border-right: #666 solid 1px;
+}
+.url{
+	display: inline-block;
+	text-indent: 10px;
+	font-family: monospace;
+}
+.params{
+	padding: 10px;
+	background: #ddd;
+	border:#999 solid 1px;
+	border-top:none;
+}
+.params > pre{
+	overflow: auto;
+	float:none;
+	white-space: pre-wrap;                 /* CSS3 browsers  */
+	white-space: -moz-pre-wrap !important; /* 1999+ Mozilla  */
+	white-space: -pre-wrap;                /* Opera 4 thru 6 */
+	white-space: -o-pre-wrap;              /* Opera 7 and up */
+	word-wrap: break-word;
+	border:#f90 solid 1px;
+	border-left: #f90 4px solid;
+	background:#f7f8f9;
+}
+.params > pre > code{
+	position: relative;
+	text-align: left;
+  white-space: pre-line;
+}
+.params p{
+	font-weight: bold;
+}
+.method.get{
+	background-color: #4DB84D;
+}
+.method.post{
+	background-color: #0066CC;
+}
+.method.put{
+	background-color: #6666FF;
+}
+.method.delete{
+	background-color: #FF3300;
+}

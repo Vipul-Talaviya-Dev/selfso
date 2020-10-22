@@ -129,6 +129,7 @@ class StoryController extends Controller
             'media' => $publicKey,
             'description' => $request->get('description'),
             'add_memory' => $request->get('addMemory') ?: 0,
+            'type' => $request->get('type'),
         ]);
 
         return response()->json([

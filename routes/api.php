@@ -48,6 +48,7 @@ Route::group(['namespace' => 'Api\V1','prefix' => 'v1'], function () {
 		Route::get('post/delete/{id}', 'PostController@delete');
 		Route::post('post-save', 'PostController@savePostDisSave');
 		Route::get('save-post-list', 'PostController@savePostList');
+		Route::post('post-share', 'PostController@postShare');
 
 		Route::get('stories', 'StoryController@index');
 		Route::post('add-story', 'StoryController@create');
